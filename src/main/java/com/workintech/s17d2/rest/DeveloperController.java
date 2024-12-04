@@ -6,6 +6,7 @@ import com.workintech.s17d2.tax.Taxable;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -33,8 +34,8 @@ public class DeveloperController {
     @PostConstruct
     public void init() {
         System.out.println("post Construct Created");
-        developers.put(1,new Developer(1,"ufuk" , 10000, Experience.JUNIOR));
-        developers.put(2,new Developer(2,"ali" , 20000, Experience.MID));
+        developers.put(1,new Developer(1,"ufuk" , 10000d, Experience.JUNIOR));
+        developers.put(2,new Developer(2,"ali" , 20000d, Experience.MID));
     }
 
     @GetMapping
@@ -52,16 +53,17 @@ public class DeveloperController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Developer addDeveloper(@RequestBody Developer developer) {
         double taxedSalary;
         if(developer.getExperience()==Experience.JUNIOR) {
-            taxedSalary = developer.getSalary() - developer.getSalary()*taxable.getSimpleTaxRate();
+            taxedSalary = developer.getSalary() - (developer.getSalary()*taxable.getSimpleTaxRate())/100;
             developer = new Developer(developer.getId(),developer.getName(),taxedSalary,developer.getExperience());
         } else if(developer.getExperience()==Experience.MID) {
-            taxedSalary = developer.getSalary() - developer.getSalary()*taxable.getMiddleTaxRate();
+            taxedSalary = developer.getSalary() - (developer.getSalary()*taxable.getMiddleTaxRate())/100;
             developer = new Developer(developer.getId(),developer.getName(),taxedSalary,developer.getExperience());
         } else if (developer.getExperience()==Experience.SENIOR){
-            taxedSalary = developer.getSalary() - developer.getSalary()*taxable.getUpperTaxRate();
+            taxedSalary = developer.getSalary() - (developer.getSalary()*taxable.getUpperTaxRate())/100;
             developer = new Developer(developer.getId(),developer.getName(),taxedSalary,developer.getExperience());
         } else {
             System.out.println("wrong experience type");
